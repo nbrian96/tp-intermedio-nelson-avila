@@ -12,8 +12,8 @@ export const registerValidator = [
     body('password')
         .notEmpty()
         .withMessage('La contraseña es requerida')
-        .isLength({ min: 6 })
-        .withMessage('La contraseña debe tener al menos 6 caracteres'),
+        .isLength({ min: 6, max: 12 })
+        .withMessage('La contraseña debe tener entre 6 y 12 caracteres'),
     validateResult
 ];
 

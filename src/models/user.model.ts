@@ -2,8 +2,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUser extends Document {
     email: string;
+    username: string;
     password: string;
-    // Agrega más campos si es necesario (ej: nombre)
 }
 
 const UserSchema: Schema = new Schema({
@@ -13,6 +13,12 @@ const UserSchema: Schema = new Schema({
         unique: true,
         trim: true,
         lowercase: true
+    },
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
     },
     password: {
         type: String,

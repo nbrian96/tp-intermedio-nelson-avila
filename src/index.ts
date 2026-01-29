@@ -10,6 +10,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.BASE_URL || `http://localhost`;
 
 connectDB();
 
@@ -23,6 +24,6 @@ app.use('/api', publicRoutes);
 app.use('/api', protectedRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
-  console.log(`Documentación disponible en http://localhost:${PORT}/api/docs`);
+  console.log(`Servidor escuchando en ${BASE_URL}:${PORT}`);
+  console.log(`Documentación disponible en ${BASE_URL}:${PORT}/api/docs`);
 });

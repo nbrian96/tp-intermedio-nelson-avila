@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { register, login } from '../controllers/auth.controller';
+import { registerValidator, loginValidator } from '../validator/auth.validator';
 
 const router = Router();
 
@@ -30,9 +31,9 @@ const router = Router();
  *       201:
  *         description: User registered successfully
  *       400:
- *         description: Bad request
+ *         description: Bad request (Validation failed of existing user)
  */
-router.post('/register', register);
+router.post('/register', registerValidator, register);
 
 /**
  * @swagger
@@ -64,9 +65,11 @@ router.post('/register', register);
  *               properties:
  *                 token:
  *                   type: string
+ *       400:
+ *         description: Validation failed
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', login);
+router.post('/login', loginValidator, login);
 
 export default router;

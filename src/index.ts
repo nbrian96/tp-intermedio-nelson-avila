@@ -19,11 +19,6 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// Health check endpoint
-app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'API is running' });
-});
-
 app.use('/api/auth', authRoutes);
 app.use('/api/veterinarians', veterinarianRoutes);
 app.use('/api/appointments', appointmentRoutes);

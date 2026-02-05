@@ -1,9 +1,4 @@
 {
-  "name": "tp-intermedio-nelson-avila",
-  "version": "1.0.0",
-  "engines": {
-    "node": ">=16.x"
-  },
   "scripts": {
     "dev": "ts-node-dev --respawn src/index.ts",
     "build": "tsc",

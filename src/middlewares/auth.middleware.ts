@@ -1,37 +1,31 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { verifyToken } from '../utils/token.util';
+import { AuthenticationError } from '../utils/errors.util';
+import { AuthUser } from '../types/express';
 
 interface JwtPayload {
     id: string;
 }
 
-declare global {
-    namespace Express {
-        interface Request {
-            user?: any;
+export const protect = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader || !authHeader.startsWith('Bearer')) {
+            throw new AuthenticationError('Unauthorized, no token');
+        }
+
+        const token = authHeader.split(' ')[1];
+        const decoded = verifyToken(token) as JwtPayload;
+
+        req.user = { id: decoded.id } as AuthUser;
+
+        next();
+    } catch (error) {
+        if (error instanceof AuthenticationError) {
+            next(error);
+        } else {
+            next(new AuthenticationError('Unauthorized, token failed'));
         }
     }
-}
-
-export const protect = async (req: Request, res: Response, next: NextFunction) => {
-    let token;
-
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        try {
-            token = req.headers.authorization.split(' ')[1];
-
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secretdefault') as JwtPayload;
-
-            req.user = { id: decoded.id };
-
-            next();
-            return;
-        } catch (error) {
-            console.error(error);
-            res.status(401).json({ message: 'Unauthorized, token failed' });
-            return;
-        }
-    }
-
-    res.status(401).json({ message: 'Unauthorized, no token' });
 };

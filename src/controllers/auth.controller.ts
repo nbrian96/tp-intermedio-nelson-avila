@@ -1,26 +1,22 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
 
 const authService = new AuthService();
 
-export const register = async (req: Request, res: Response): Promise<void> => {
+export const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const result = await authService.register(req.body);
-        res.status(result.success ? 200 : 400).json(result);
+        res.status(201).json(result);
     } catch (error) {
-        const message = (error as Error).message;
-        const status = message === 'User already exists' ? 400 : 500;
-        res.status(status).json({ message });
+        next(error);
     }
 };
 
-export const login = async (req: Request, res: Response): Promise<void> => {
+export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const result = await authService.login(req.body);
-        res.status(result.success ? 200 : 401).json(result);
+        res.status(200).json(result);
     } catch (error) {
-        const message = (error as Error).message;
-        const status = message === 'Invalid credentials' ? 401 : 500;
-        res.status(status).json({ message });
+        next(error);
     }
 };

@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './config/database';
+import { validateJWTConfig } from './utils/token.util';
 
 import veterinarianRoutes from './routes/veterinarian.routes';
 import authRoutes from './routes/auth.routes';
@@ -9,6 +10,13 @@ import appointmentRoutes from './routes/appointment.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
+
+try {
+  validateJWTConfig();
+} catch (error) {
+  console.error((error as Error).message);
+  process.exit(1);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;

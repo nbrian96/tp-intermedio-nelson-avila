@@ -25,7 +25,6 @@ const OwnerSchema: Schema = new Schema({
     },
     dni: {
         type: Number,
-        unique: true,
         required: true,
         minlength: 7,
         maxlength: 8,
@@ -53,5 +52,7 @@ const OwnerSchema: Schema = new Schema({
 }, {
     timestamps: true
 });
+
+OwnerSchema.index({ dni: 1 }, { unique: true, partialFilterExpression: { deleted: false } });
 
 export default mongoose.model<IOwner>('Owner', OwnerSchema);

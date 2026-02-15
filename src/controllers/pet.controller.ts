@@ -27,8 +27,8 @@ export const getPetById = async (req: Request, res: Response): Promise<void> => 
 
 export const createPet = async (req: Request, res: Response): Promise<void> => {
     try {
-        const pet = await petService.create(req.body);
-        res.status(201).json({ success: true, data: pet });
+        await petService.create(req.body);
+        res.status(201).json({ success: true });
     } catch (error) {
         res.status(400).json({ success: false, message: (error as Error).message });
     }
@@ -41,7 +41,7 @@ export const updatePet = async (req: Request, res: Response): Promise<void> => {
             res.status(404).json({ success: false, message: 'Pet not found' });
             return;
         }
-        res.status(200).json({ success: true, data: pet });
+        res.status(200).json({ success: true });
     } catch (error) {
         res.status(400).json({ success: false, message: (error as Error).message });
     }
@@ -54,7 +54,7 @@ export const deletePet = async (req: Request, res: Response): Promise<void> => {
             res.status(404).json({ success: false, message: 'Pet not found' });
             return;
         }
-        res.status(200).json({ success: true, message: 'Pet deleted successfully' });
+        res.status(200).json({ success: true });
     } catch (error) {
         res.status(500).json({ success: false, message: (error as Error).message });
     }

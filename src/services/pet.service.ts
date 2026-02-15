@@ -1,4 +1,7 @@
 import Pet, { IPet } from '../models/pet.model';
+import { MedicalHistoryService } from './medical-history.service';
+
+const medicalHistoryService = new MedicalHistoryService();
 
 export class PetService {
 
@@ -23,10 +26,16 @@ export class PetService {
     }
 
     async delete(id: string): Promise<IPet | null> {
-        return await Pet.findOneAndUpdate(
+        const pet = await Pet.findOneAndUpdate(
             { _id: id, deleted: false },
             { deleted: true, deletedAt: new Date() },
             { new: true }
         );
+
+        if (pet) {
+            await medicalHistoryService.deleteByPetId(id);
+        }
+
+        return pet;
     }
 }

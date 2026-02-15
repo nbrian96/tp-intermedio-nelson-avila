@@ -45,8 +45,8 @@ export const getOwnerByDni = async (req: Request, res: Response): Promise<void> 
 
 export const createOwner = async (req: Request, res: Response): Promise<void> => {
     try {
-        const owner = await ownerService.create(req.body);
-        res.status(201).json({ success: true, data: owner });
+        await ownerService.create(req.body);
+        res.status(201).json({ success: true });
     } catch (error) {
         res.status(400).json({ success: false, message: (error as Error).message });
     }
@@ -59,7 +59,7 @@ export const updateOwner = async (req: Request, res: Response): Promise<void> =>
             res.status(404).json({ success: false, message: 'Owner not found' });
             return;
         }
-        res.status(200).json({ success: true, data: owner });
+        res.status(200).json({ success: true });
     } catch (error) {
         res.status(400).json({ success: false, message: (error as Error).message });
     }
@@ -72,7 +72,7 @@ export const deleteOwner = async (req: Request, res: Response): Promise<void> =>
             res.status(404).json({ success: false, message: 'Owner not found' });
             return;
         }
-        res.status(200).json({ success: true, message: 'Owner and their pets deleted successfully' });
+        res.status(200).json({ success: true });
     } catch (error) {
         res.status(500).json({ success: false, message: (error as Error).message });
     }

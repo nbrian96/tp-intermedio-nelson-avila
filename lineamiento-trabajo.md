@@ -36,7 +36,10 @@ Se sigue una arquitectura **MVC (Modelo-Vista-Controlador)** con una capa de **S
 ## 4. Patrones de Diseño
 - **Inyección de Dependencias (Implícita):** Los controladores instancian los servicios.
 - **Manejo de Errores:** `try/catch` en controladores. Servicios lanzan excepciones.
-- **Respuestas:** Formato consistente (ej. `{ success: boolean, data?: any, message?: string }` o similar según el caso).
+- **Respuestas:**
+    - `POST`, `PUT`, `DELETE`: Retornar `{ success: true/false }`.
+    - `GET`: Retornar `{ success: true, data: ... }`.
+- **Datos:** En los `GET`, hacer un `populate` para no mostrar datos innecesarios (Ids sueltos), mostrando información relevante de las relaciones.
 
 ## 6. Validación
 - **Regla:** Cada ruta debe tener su propio validador (middleware) antes de llegar al controlador.

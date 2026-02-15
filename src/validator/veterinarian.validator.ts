@@ -6,10 +6,10 @@ export const createVeterinarianValidator = [
         .isString().withMessage('Name must be a string')
         .trim()
         .notEmpty().withMessage('Name is required'),
-    body('lastName')
-        .isString().withMessage('Last name must be a string')
+    body('surname')
+        .isString().withMessage('Surname must be a string')
         .trim()
-        .notEmpty().withMessage('Last name is required'),
+        .notEmpty().withMessage('Surname is required'),
     body('medicalLicense')
         .isString().withMessage('Medical license must be a string')
         .trim()
@@ -27,11 +27,11 @@ export const updateVeterinarianValidator = [
         .isString().withMessage('Name must be a string')
         .trim()
         .notEmpty().withMessage('Name cannot be empty'),
-    body('lastName')
+    body('surname')
         .optional()
-        .isString().withMessage('Last name must be a string')
+        .isString().withMessage('Surname must be a string')
         .trim()
-        .notEmpty().withMessage('Last name cannot be empty'),
+        .notEmpty().withMessage('Surname cannot be empty'),
     body('medicalLicense')
         .optional()
         .isString().withMessage('Medical license must be a string')

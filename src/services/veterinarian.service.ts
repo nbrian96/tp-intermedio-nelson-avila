@@ -1,11 +1,14 @@
 import Veterinarian, { IVeterinarian } from '../models/veterinarian.model';
+import { MedicalHistoryService } from './medical-history.service';
+
+const medicalHistoryService = new MedicalHistoryService();
 
 export class VeterinarianService {
 
     async findAllSpecialists(): Promise<IVeterinarian[]> {
         return await Veterinarian.find(
             { deleted: false },
-            { name: 1, lastName: 1, specialty: 1, id: '$_id', _id: 0 }
+            { name: 1, surname: 1, specialty: 1, medicalLicense: 1, id: '$_id', _id: 0 }
         );
     }
 
@@ -26,8 +29,13 @@ export class VeterinarianService {
     }
 
     async delete(id: string): Promise<IVeterinarian | null> {
+        const hasMedicalHistory = await medicalHistoryService.existsByVeterinarianId(id);
+        if (hasMedicalHistory) {
+            throw new Error('Cannot delete veterinarian with existing medical records.');
+        }
+
         return await Veterinarian.findOneAndUpdate(
-            { _id: id },
+            { _id: id, deleted: false },
             { deleted: true, deletedAt: new Date() },
             { new: true }
         );

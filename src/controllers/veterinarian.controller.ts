@@ -41,7 +41,7 @@ export const updateVeterinarian = async (req: Request, res: Response): Promise<v
             res.status(404).json({ success: false, message: 'Veterinarian not found' });
             return;
         }
-        res.status(200).json({ success: true, data: veterinarian });
+        res.status(200).json({ success: true });
     } catch (error) {
         res.status(400).json({ success: false, message: (error as Error).message });
     }
@@ -54,7 +54,7 @@ export const deleteVeterinarian = async (req: Request, res: Response): Promise<v
             res.status(404).json({ success: false, message: 'Veterinarian not found' });
             return;
         }
-        res.status(200).json({ success: true, message: 'Veterinarian deleted successfully' });
+        res.status(200).json({ success: true });
     } catch (error) {
         res.status(500).json({ success: false, message: (error as Error).message });
     }

@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IVeterinarian extends Document {
     name: string;
-    lastName: string;
+    surname: string;
     medicalLicense: string;
     specialty: string;
     deleted: boolean;
@@ -15,7 +15,7 @@ const VeterinarianSchema: Schema = new Schema({
         required: true,
         trim: true,
     },
-    lastName: {
+    surname: {
         type: String,
         required: true,
         trim: true,
@@ -23,7 +23,6 @@ const VeterinarianSchema: Schema = new Schema({
     medicalLicense: {
         type: String,
         required: true,
-        unique: true,
         trim: true,
     },
     specialty: {
@@ -42,5 +41,7 @@ const VeterinarianSchema: Schema = new Schema({
 }, {
     timestamps: true
 });
+
+VeterinarianSchema.index({ medicalLicense: 1 }, { unique: true, partialFilterExpression: { deleted: false } });
 
 export default mongoose.model<IVeterinarian>('Veterinarian', VeterinarianSchema);

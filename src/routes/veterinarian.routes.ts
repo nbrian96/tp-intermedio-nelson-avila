@@ -15,7 +15,7 @@ router.get('/', getSpecialists);
 
 router.post('/', protect, createVeterinarianValidator, createVeterinarian);
 router.get('/:id', protect, getVeterinarianById);
-router.patch('/:id', protect, updateVeterinarianValidator, updateVeterinarian);
+router.put('/:id', protect, updateVeterinarianValidator, updateVeterinarian);
 router.delete('/:id', protect, deleteVeterinarian);
 
 export default router;

@@ -8,6 +8,7 @@ import veterinarianRoutes from './routes/veterinarian.routes';
 import authRoutes from './routes/auth.routes';
 import ownerRoutes from './routes/owner.routes';
 import petRoutes from './routes/pet.routes';
+import medicalHistoryRoutes from './routes/medical-history.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/veterinarians', veterinarianRoutes);
 app.use('/api/owners', ownerRoutes);
 app.use('/api/pets', petRoutes);
+app.use('/api/medical-histories', medicalHistoryRoutes);
 
 app.use(errorHandler);
 

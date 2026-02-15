@@ -12,14 +12,12 @@ const UserSchema: Schema = new Schema({
     email: {
         type: String,
         required: true,
-        unique: true,
         trim: true,
         lowercase: true
     },
     username: {
         type: String,
         required: true,
-        unique: true,
         trim: true,
     },
     password: {
@@ -37,5 +35,8 @@ const UserSchema: Schema = new Schema({
 }, {
     timestamps: true
 });
+
+UserSchema.index({ email: 1 }, { unique: true, partialFilterExpression: { deleted: false } });
+UserSchema.index({ username: 1 }, { unique: true, partialFilterExpression: { deleted: false } });
 
 export default mongoose.model<IUser>('User', UserSchema);

@@ -3,26 +3,29 @@ import { validateResult } from './validate';
 
 export const registerValidator = [
     body('username')
-        .notEmpty()
-        .withMessage('Username is required')
-        .isString(),
+        .isString().withMessage('Username must be a string')
+        .trim()
+        .notEmpty().withMessage('Username is required'),
     body('email')
-        .isEmail()
-        .withMessage('Must provide a valid email'),
+        .isString().withMessage('Email must be a string')
+        .trim()
+        .isEmail().withMessage('Must provide a valid email'),
     body('password')
-        .notEmpty()
-        .withMessage('Password is required')
-        .isLength({ min: 6, max: 12 })
-        .withMessage('Password must be between 6 and 12 characters'),
+        .isString().withMessage('Password must be a string')
+        .trim()
+        .notEmpty().withMessage('Password is required')
+        .isLength({ min: 6, max: 12 }).withMessage('Password must be between 6 and 12 characters'),
     validateResult
 ];
 
 export const loginValidator = [
     body('email')
-        .isEmail()
-        .withMessage('Must provide a valid email'),
+        .isString().withMessage('Email must be a string')
+        .trim()
+        .isEmail().withMessage('Must provide a valid email'),
     body('password')
-        .notEmpty()
-        .withMessage('Password is required'),
+        .isString().withMessage('Password must be a string')
+        .trim()
+        .notEmpty().withMessage('Password is required'),
     validateResult
 ];

@@ -14,11 +14,20 @@ Se sigue una arquitectura **MVC (Modelo-Vista-Controlador)** con una capa de **S
 - `src/services`: Lógica de negocio pura. Interacción con la base de datos.
 - `src/routes`: Definición de endpoints y asociación con controladores.
 - `src/middlewares`: Intermediarios para validación, autenticación, etc.
+- `src/validator`: Lógica de validación de datos de entrada.
+- `src/config`: Configuración de la aplicación (base de datos, variables de entorno).
+- `src/utils`: Funciones utilitarias y helpers.
+- `src/types`: Definiciones de tipos y extensiones de TypeScript.
 
 ## 3. Convenciones de Código
 - **Idioma:** Variables, funciones, clases y métodos en **Inglés**.
-- **Comentarios:** **No** se deben dejar comentarios en el código (código autodocumentado).
-- **Formato:** Mantener linteo estricto y buenas prácticas.
+- **Comentarios:** **ESTRICTAMENTE PROHIBIDO** dejar comentarios en el código. El código debe ser **autodocumentado**. Si un bloque de código requiere explicación, debe ser refactorizado para que sea legible por sí mismo.
+- **Linting y Calidad de Código:**
+    - **Evitar `any`:** Utilizar tipado estricto en variables, argumentos y retornos de funciones.
+    - **Sin variables no usadas:** Eliminar imports, variables y funciones que no se utilicen.
+    - **Manejo de promesas:** Utilizar `async/await` de forma correcta, evitando `.then().catch()` anidados.
+    - **Casteo seguro:** Validar tipos antes de castear, o usar `as` con precaución (ej. `req.params.id as string`).
+    - **Formato:** Respetar la indentación y estilo definido por la configuración del proyecto.
 - **Nombrado:**
     - Archivos: `kebab-case.type.ts` (ej. `veterinarian.controller.ts`)
     - Clases: `PascalCase`

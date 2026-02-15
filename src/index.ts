@@ -7,6 +7,8 @@ import { validateJWTConfig } from './utils/token.util';
 import veterinarianRoutes from './routes/veterinarian.routes';
 import authRoutes from './routes/auth.routes';
 import appointmentRoutes from './routes/appointment.routes';
+import ownerRoutes from './routes/owner.routes';
+import petRoutes from './routes/pet.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
@@ -30,6 +32,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/veterinarians', veterinarianRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/owners', ownerRoutes);
+app.use('/api/pets', petRoutes);
 
 app.use(errorHandler);
 

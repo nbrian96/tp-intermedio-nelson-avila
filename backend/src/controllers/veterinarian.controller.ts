@@ -1,89 +1,82 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { VeterinarianService } from '../services/veterinarian.service';
 import { CreateVeterinarianDTO, UpdateVeterinarianDTO } from '../dto/veterinarian.dto';
+import { AuthenticationError, NotFoundError } from '../utils/errors.util';
 
 const veterinarianService = new VeterinarianService();
 
-export const getSpecialists = async (req: Request, res: Response): Promise<void> => {
+export const getSpecialists = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = req.user?.id;
         if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' });
-            return;
+            throw new AuthenticationError('Unauthorized');
         }
         const specialists = await veterinarianService.findAllSpecialists(userId);
         res.status(200).json({ success: true, data: specialists });
     } catch (error) {
-        res.status(500).json({ success: false, message: (error as Error).message });
+        next(error);
     }
 };
 
-export const createVeterinarian = async (req: Request, res: Response): Promise<void> => {
+export const createVeterinarian = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = req.user?.id;
         if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' });
-            return;
+            throw new AuthenticationError('Unauthorized');
         }
         const veterinarianData: CreateVeterinarianDTO = req.body;
         await veterinarianService.create(veterinarianData, userId);
         res.status(201).json({ success: true });
     } catch (error) {
-        res.status(400).json({ success: false, message: (error as Error).message });
+        next(error);
     }
 };
 
-export const getVeterinarianById = async (req: Request, res: Response): Promise<void> => {
+export const getVeterinarianById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = req.user?.id;
         if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' });
-            return;
+            throw new AuthenticationError('Unauthorized');
         }
         const veterinarian = await veterinarianService.findById(req.params.id as string, userId);
         if (!veterinarian) {
-            res.status(404).json({ success: false, message: 'Veterinarian not found' });
-            return;
+            throw new NotFoundError('Veterinarian not found');
         }
         res.status(200).json({ success: true, data: veterinarian });
     } catch (error) {
-        res.status(500).json({ success: false, message: (error as Error).message });
+        next(error);
     }
 };
 
-export const updateVeterinarian = async (req: Request, res: Response): Promise<void> => {
+export const updateVeterinarian = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = req.user?.id;
         if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' });
-            return;
+            throw new AuthenticationError('Unauthorized');
         }
         const updateData: UpdateVeterinarianDTO = req.body;
         const veterinarian = await veterinarianService.update(req.params.id as string, updateData, userId);
         if (!veterinarian) {
-            res.status(404).json({ success: false, message: 'Veterinarian not found' });
-            return;
+            throw new NotFoundError('Veterinarian not found');
         }
         res.status(200).json({ success: true });
     } catch (error) {
-        res.status(400).json({ success: false, message: (error as Error).message });
+        next(error);
     }
 };
 
-export const deleteVeterinarian = async (req: Request, res: Response): Promise<void> => {
+export const deleteVeterinarian = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = req.user?.id;
         if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' });
-            return;
+            throw new AuthenticationError('Unauthorized');
         }
         const veterinarian = await veterinarianService.delete(req.params.id as string, userId);
         if (!veterinarian) {
-            res.status(404).json({ success: false, message: 'Veterinarian not found' });
-            return;
+            throw new NotFoundError('Veterinarian not found');
         }
         res.status(200).json({ success: true });
     } catch (error) {
-        res.status(500).json({ success: false, message: (error as Error).message });
+        next(error);
     }
 };

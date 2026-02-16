@@ -3,6 +3,7 @@ import { protect } from '../middlewares/auth.middleware';
 import { createPetValidator, updatePetValidator } from '../validator/pet.validator';
 import {
     getPets,
+    getPetsByOwner,
     getPetById,
     createPet,
     updatePet,
@@ -14,6 +15,7 @@ const router = Router();
 router.use(protect);
 
 router.get('/', getPets);
+router.get('/owner/:ownerId', getPetsByOwner);
 router.post('/', createPetValidator, createPet);
 router.get('/:id', getPetById);
 router.put('/:id', updatePetValidator, updatePet);

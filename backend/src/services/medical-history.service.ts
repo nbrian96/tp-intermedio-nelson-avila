@@ -1,5 +1,8 @@
 import MedicalHistory, { IMedicalHistory } from '../models/medical-history.model';
+import Pet from '../models/pet.model';
+import Veterinarian from '../models/veterinarian.model';
 import { CreateMedicalHistoryDTO, UpdateMedicalHistoryDTO } from '../dto/medical-history.dto';
+import { NotFoundError } from '../utils/errors.util';
 
 export class MedicalHistoryService {
 
@@ -16,12 +19,36 @@ export class MedicalHistoryService {
     }
 
     async create(data: CreateMedicalHistoryDTO, userId: string) {
+        const pet = await Pet.findOne({ _id: data.petId, userId, deleted: false });
+        if (!pet) {
+            throw new NotFoundError('La mascota especificada no existe');
+        }
+
+        const veterinarian = await Veterinarian.findOne({ _id: data.veterinarianId, userId, deleted: false });
+        if (!veterinarian) {
+            throw new NotFoundError('El veterinario especificado no existe');
+        }
+
         const medicalHistory = new MedicalHistory({ ...data, userId });
         await medicalHistory.save();
         return medicalHistory;
     }
 
     async update(id: string, data: UpdateMedicalHistoryDTO, userId: string) {
+        if (data.petId) {
+            const pet = await Pet.findOne({ _id: data.petId, userId, deleted: false });
+            if (!pet) {
+                throw new NotFoundError('La mascota especificada no existe');
+            }
+        }
+
+        if (data.veterinarianId) {
+            const veterinarian = await Veterinarian.findOne({ _id: data.veterinarianId, userId, deleted: false });
+            if (!veterinarian) {
+                throw new NotFoundError('El veterinario especificado no existe');
+            }
+        }
+
         return await MedicalHistory.findOneAndUpdate(
             { _id: id, userId, deleted: false },
             data,

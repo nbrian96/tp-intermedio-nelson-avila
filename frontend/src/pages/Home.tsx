@@ -95,8 +95,24 @@ const Home = () => {
                   Gestionar Veterinarios
                 </Button>
                 <Button
+                  variant="contained"
+                  size="large"
+                  color="secondary"
+                  startIcon={<PetsIcon />}
+                  onClick={() => navigate('/pets')}
+                  sx={{
+                    borderRadius: 2,
+                    px: 4,
+                    py: 1.5,
+                    fontSize: '1rem',
+                  }}
+                >
+                  Ver Mascotas
+                </Button>
+                <Button
                   variant="outlined"
                   size="large"
+                  onClick={() => navigate('/owners')}
                   sx={{
                     borderRadius: 2,
                     px: 4,
@@ -104,7 +120,7 @@ const Home = () => {
                     fontSize: '1rem'
                   }}
                 >
-                  Ver Reportes
+                  Gestionar Dueños
                 </Button>
               </Box>
             </CardContent>

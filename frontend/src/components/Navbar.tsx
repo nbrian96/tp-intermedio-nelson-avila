@@ -21,6 +21,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
+import GroupIcon from '@mui/icons-material/Group';
+import PetsIcon from '@mui/icons-material/Pets';
 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_NAME } from '@constants/index';
@@ -62,6 +64,8 @@ const Navbar: React.FC = () => {
 
   const menuItems = [
     { text: 'Inicio', path: '/', icon: <HomeIcon /> },
+    { text: 'Dueños', path: '/owners', icon: <GroupIcon /> },
+    { text: 'Mascotas', path: '/pets', icon: <PetsIcon /> },
     { text: 'Veterinarios', path: '/veterinarians', icon: <PersonIcon /> }
   ];
 

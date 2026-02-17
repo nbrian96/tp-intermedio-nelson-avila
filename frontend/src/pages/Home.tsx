@@ -80,19 +80,17 @@ const Home = () => {
 
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   size="large"
-                  startIcon={<AssignmentIndIcon />}
-                  onClick={() => navigate('/veterinarians')}
+                  onClick={() => navigate('/owners')}
                   sx={{
                     borderRadius: 2,
                     px: 4,
                     py: 1.5,
-                    fontSize: '1rem',
-                    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)'
+                    fontSize: '1rem'
                   }}
                 >
-                  Gestionar Veterinarios
+                  Gestionar Dueños
                 </Button>
                 <Button
                   variant="contained"
@@ -110,17 +108,19 @@ const Home = () => {
                   Ver Mascotas
                 </Button>
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   size="large"
-                  onClick={() => navigate('/owners')}
+                  startIcon={<AssignmentIndIcon />}
+                  onClick={() => navigate('/veterinarians')}
                   sx={{
                     borderRadius: 2,
                     px: 4,
                     py: 1.5,
-                    fontSize: '1rem'
+                    fontSize: '1rem',
+                    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)'
                   }}
                 >
-                  Gestionar Dueños
+                  Gestionar Veterinarios
                 </Button>
               </Box>
             </CardContent>

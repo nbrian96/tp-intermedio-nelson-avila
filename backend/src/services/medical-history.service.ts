@@ -6,10 +6,12 @@ import { NotFoundError } from '../utils/errors.util';
 
 export class MedicalHistoryService {
 
-    async findAll(userId: string) {
-        return await MedicalHistory.find({ userId, deleted: false })
+    async findAll(userId: string, filters: any = {}) {
+        const query = { userId, deleted: false, ...filters };
+        return await MedicalHistory.find(query)
             .populate('petId', 'name species')
-            .populate('veterinarianId', 'name surname specialty');
+            .populate('veterinarianId', 'name surname specialty')
+            .sort({ registrationDate: -1 });
     }
 
     async findById(id: string, userId: string) {

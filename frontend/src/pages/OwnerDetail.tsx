@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Fragment } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
     Box,
@@ -25,7 +25,8 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Avatar
+    Avatar,
+    Collapse
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
@@ -36,13 +37,20 @@ import PersonIcon from '@mui/icons-material/Person';
 import PhoneIcon from '@mui/icons-material/Phone';
 import BadgeIcon from '@mui/icons-material/Badge';
 import HomeIcon from '@mui/icons-material/Home';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 
 import { ownerService } from '../services/owner.service';
 import { petService } from '../services/pet.service';
+import { useMedicalHistories } from '../hooks/useMedicalHistories';
+import MedicalHistoryList from '../components/medical-history/MedicalHistoryList';
+import MedicalHistoryModal from '../components/medical-history/MedicalHistoryModal';
 import type { Owner } from '../interfaces/owner.interface';
 import type { Pet, PetFormData } from '../interfaces/pet.interface';
+import type { MedicalHistory, MedicalHistoryFormData } from '../interfaces/medical-history.interface';
 
 const OwnerDetail = () => {
     const navigate = useNavigate();
@@ -68,6 +76,33 @@ const OwnerDetail = () => {
     // Delete Pet Dialog State
     const [deletePetDialogOpen, setDeletePetDialogOpen] = useState(false);
     const [petToDelete, setPetToDelete] = useState<Pet | null>(null);
+
+    // Medical Histories State
+    const {
+        histories,
+        loading: historiesLoading,
+        error: historiesError,
+        fetchHistories,
+        createHistory,
+        updateHistory,
+        deleteHistory
+    } = useMedicalHistories();
+
+    const [expandedPet, setExpandedPet] = useState<string | null>(null);
+    const [historyModalOpen, setHistoryModalOpen] = useState(false);
+    const [selectedHistory, setSelectedHistory] = useState<MedicalHistory | null>(null);
+    const [historyFormData, setHistoryFormData] = useState<MedicalHistoryFormData>({
+        petId: '',
+        veterinarianId: '',
+        registrationDate: dayjs().toISOString(),
+        description: ''
+    });
+    const [historySubmitting, setHistorySubmitting] = useState(false);
+    const [localHistoryError, setLocalHistoryError] = useState<string | null>(null);
+
+    // Delete History Dialog State
+    const [deleteHistoryDialogOpen, setDeleteHistoryDialogOpen] = useState(false);
+    const [historyToDelete, setHistoryToDelete] = useState<MedicalHistory | null>(null);
 
     const loadData = useCallback(async () => {
         if (!id) return;
@@ -175,6 +210,71 @@ const OwnerDetail = () => {
             setPets(updatedPets);
         } catch (err) {
             setError((err as Error).message);
+        }
+    };
+
+    // History Handlers
+    const handleToggleExpand = (petId: string) => {
+        if (expandedPet === petId) {
+            setExpandedPet(null);
+        } else {
+            setExpandedPet(petId);
+            fetchHistories({ petId });
+        }
+    };
+
+    const handleOpenHistoryModal = (petId: string, history: MedicalHistory | null = null) => {
+        if (history) {
+            setSelectedHistory(history);
+            setHistoryFormData({
+                petId: petId,
+                veterinarianId: typeof history.veterinarianId === 'string' ? history.veterinarianId : (history.veterinarianId as any)._id || (history.veterinarianId as any).id,
+                registrationDate: history.registrationDate,
+                description: history.description
+            });
+        } else {
+            setSelectedHistory(null);
+            setHistoryFormData({
+                petId: petId,
+                veterinarianId: '',
+                registrationDate: dayjs().toISOString(),
+                description: ''
+            });
+        }
+        setLocalHistoryError(null);
+        setHistoryModalOpen(true);
+    };
+
+    const handleHistorySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            setHistorySubmitting(true);
+            setLocalHistoryError(null);
+            if (selectedHistory) {
+                await updateHistory(selectedHistory._id, historyFormData);
+            } else {
+                await createHistory(historyFormData);
+            }
+            setHistoryModalOpen(false);
+        } catch (err: any) {
+            setLocalHistoryError(err.message || 'Error al procesar el registro');
+        } finally {
+            setHistorySubmitting(false);
+        }
+    };
+
+    const handleOpenDeleteHistory = (history: MedicalHistory) => {
+        setHistoryToDelete(history);
+        setDeleteHistoryDialogOpen(true);
+    };
+
+    const handleConfirmDeleteHistory = async () => {
+        if (!historyToDelete) return;
+        try {
+            await deleteHistory(historyToDelete._id);
+            setDeleteHistoryDialogOpen(false);
+        } catch (err: any) {
+            setError(err.message || 'Error al eliminar el registro');
         }
     };
 
@@ -312,57 +412,103 @@ const OwnerDetail = () => {
                                         </TableHead>
                                         <TableBody>
                                             {pets.map((pet) => (
-                                                <TableRow key={pet._id} hover>
-                                                    <TableCell>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.light', color: 'secondary.main' }}>
-                                                                <PetsIcon fontSize="small" />
-                                                            </Avatar>
-                                                            <Typography fontWeight="600">{pet.name}</Typography>
-                                                        </Box>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Paper
-                                                            variant="outlined"
-                                                            sx={{
-                                                                display: 'inline-block',
-                                                                px: 1,
-                                                                py: 0.2,
-                                                                borderRadius: 1,
-                                                                bgcolor: '#f0f0f0',
-                                                                fontSize: '0.8rem',
-                                                                textTransform: 'uppercase'
-                                                            }}
-                                                        >
-                                                            {pet.species}
-                                                        </Paper>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {pet.birthdate ? dayjs(pet.birthdate).format('DD/MM/YYYY') : '-'}
-                                                    </TableCell>
-                                                    <TableCell align="right">
-                                                        <Tooltip title="Editar mascota">
-                                                            <IconButton
-                                                                size="small"
-                                                                color="primary"
-                                                                onClick={() => handleOpenPetDialog(pet)}
-                                                                sx={{ mr: 1, bgcolor: 'primary.light', '&:hover': { bgcolor: 'primary.main', color: 'white' } }}
+                                                <Fragment key={pet._id}>
+                                                    <TableRow hover>
+                                                        <TableCell>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    onClick={() => handleToggleExpand(pet._id)}
+                                                                >
+                                                                    {expandedPet === pet._id ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                                                                </IconButton>
+                                                                <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.light', color: 'secondary.main' }}>
+                                                                    <PetsIcon fontSize="small" />
+                                                                </Avatar>
+                                                                <Typography fontWeight="600">{pet.name}</Typography>
+                                                            </Box>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Paper
+                                                                variant="outlined"
+                                                                sx={{
+                                                                    display: 'inline-block',
+                                                                    px: 1,
+                                                                    py: 0.2,
+                                                                    borderRadius: 1,
+                                                                    bgcolor: '#f0f0f0',
+                                                                    fontSize: '0.8rem',
+                                                                    textTransform: 'uppercase'
+                                                                }}
                                                             >
-                                                                <EditIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip title="Eliminar mascota">
-                                                            <IconButton
-                                                                size="small"
-                                                                color="error"
-                                                                onClick={() => handleOpenDeletePet(pet)}
-                                                                sx={{ bgcolor: 'error.light', '&:hover': { bgcolor: 'error.main', color: 'white' } }}
-                                                            >
-                                                                <DeleteIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </TableCell>
-                                                </TableRow>
+                                                                {pet.species}
+                                                            </Paper>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {pet.birthdate ? dayjs(pet.birthdate).format('DD/MM/YYYY') : '-'}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            <Tooltip title="Editar mascota">
+                                                                <IconButton
+                                                                    size="small"
+                                                                    color="primary"
+                                                                    onClick={() => handleOpenPetDialog(pet)}
+                                                                    sx={{ mr: 1, bgcolor: 'primary.light', '&:hover': { bgcolor: 'primary.main', color: 'white' } }}
+                                                                >
+                                                                    <EditIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title="Eliminar mascota">
+                                                                <IconButton
+                                                                    size="small"
+                                                                    color="error"
+                                                                    onClick={() => handleOpenDeletePet(pet)}
+                                                                    sx={{ bgcolor: 'error.light', '&:hover': { bgcolor: 'error.main', color: 'white' } }}
+                                                                >
+                                                                    <DeleteIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                    <TableRow>
+                                                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4}>
+                                                            <Collapse in={expandedPet === pet._id} timeout="auto" unmountOnExit>
+                                                                <Box sx={{ margin: 2 }}>
+                                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                                                        <Typography variant="h6" gutterBottom component="div" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                                            <MedicalInformationIcon color="primary" /> Historia Clínica de {pet.name}
+                                                                        </Typography>
+                                                                        <Button
+                                                                            size="small"
+                                                                            variant="outlined"
+                                                                            startIcon={<AddIcon />}
+                                                                            onClick={() => handleOpenHistoryModal(pet._id)}
+                                                                        >
+                                                                            Nuevo Registro
+                                                                        </Button>
+                                                                    </Box>
+
+                                                                    {historiesLoading ? (
+                                                                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                                                                            <CircularProgress size={30} />
+                                                                        </Box>
+                                                                    ) : historiesError ? (
+                                                                        <Alert severity="error">{historiesError}</Alert>
+                                                                    ) : (
+                                                                        <MedicalHistoryList
+                                                                            histories={histories.filter(h => {
+                                                                                const hPetId = typeof h.petId === 'string' ? h.petId : h.petId?._id;
+                                                                                return hPetId === pet._id;
+                                                                            })}
+                                                                            onEdit={(h) => handleOpenHistoryModal(pet._id, h)}
+                                                                            onDelete={handleOpenDeleteHistory}
+                                                                        />
+                                                                    )}
+                                                                </Box>
+                                                            </Collapse>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                </Fragment>
                                             ))}
                                         </TableBody>
                                     </Table>
@@ -439,6 +585,35 @@ const OwnerDetail = () => {
                 <DialogActions sx={{ p: 2 }}>
                     <Button onClick={handleCloseDeletePet}>Cancelar</Button>
                     <Button onClick={handleConfirmDeletePet} color="error" variant="contained">
+                        Eliminar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Medical History Modal */}
+            <MedicalHistoryModal
+                open={historyModalOpen}
+                onClose={() => setHistoryModalOpen(false)}
+                onSubmit={handleHistorySubmit}
+                formData={historyFormData}
+                onChange={setHistoryFormData}
+                title={selectedHistory ? 'Editar Registro Médico' : 'Nuevo Registro Médico'}
+                loading={historySubmitting}
+                error={localHistoryError}
+            />
+
+            {/* Delete History Confirmation Dialog */}
+            <Dialog open={deleteHistoryDialogOpen} onClose={() => setDeleteHistoryDialogOpen(false)}>
+                <DialogTitle sx={{ fontWeight: 'bold' }}>Eliminar Registro Médico</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        ¿Estás seguro que deseas eliminar este registro médico?
+                        Esta acción no se puede deshacer.
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={() => setDeleteHistoryDialogOpen(false)}>Cancelar</Button>
+                    <Button onClick={handleConfirmDeleteHistory} color="error" variant="contained" disabled={historiesLoading}>
                         Eliminar
                     </Button>
                 </DialogActions>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import {
     Box,
     Card,
@@ -16,13 +16,20 @@ import {
     Avatar,
     Chip,
     TextField,
-    InputAdornment
+    InputAdornment,
+    IconButton,
+    Collapse
 } from '@mui/material';
 import PetsIcon from '@mui/icons-material/Pets';
 import PersonIcon from '@mui/icons-material/Person';
 import SearchIcon from '@mui/icons-material/Search';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
 
 import { petService } from '../services/pet.service';
+import { useMedicalHistories } from '../hooks/useMedicalHistories';
+import MedicalHistoryList from '../components/medical-history/MedicalHistoryList';
 import type { Pet } from '../interfaces/pet.interface';
 import type { Owner } from '../interfaces/owner.interface';
 
@@ -31,6 +38,23 @@ const PetList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [expandedPet, setExpandedPet] = useState<string | null>(null);
+
+    const {
+        histories,
+        loading: historiesLoading,
+        error: historiesError,
+        fetchHistories
+    } = useMedicalHistories();
+
+    const handleToggleExpand = (petId: string) => {
+        if (expandedPet === petId) {
+            setExpandedPet(null);
+        } else {
+            setExpandedPet(petId);
+            fetchHistories({ petId });
+        }
+    };
 
     const loadPets = async () => {
         try {
@@ -131,39 +155,73 @@ const PetList = () => {
                                     {filteredPets.map((pet) => {
                                         const owner = pet.ownerId as Owner;
                                         return (
-                                            <TableRow key={pet._id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                                <TableCell>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                        <Avatar sx={{ bgcolor: 'secondary.light', color: 'secondary.main' }}>
-                                                            <PetsIcon />
-                                                        </Avatar>
-                                                        <Box>
-                                                            <Typography fontWeight="600">{pet.name}</Typography>
-                                                            <Typography variant="caption" color="text.secondary">Paciente</Typography>
+                                            <Fragment key={pet._id}>
+                                                <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                                    <TableCell>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => handleToggleExpand(pet._id)}
+                                                            >
+                                                                {expandedPet === pet._id ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                                                            </IconButton>
+                                                            <Avatar sx={{ bgcolor: 'secondary.light', color: 'secondary.main' }}>
+                                                                <PetsIcon />
+                                                            </Avatar>
+                                                            <Box>
+                                                                <Typography fontWeight="600">{pet.name}</Typography>
+                                                                <Typography variant="caption" color="text.secondary">Paciente</Typography>
+                                                            </Box>
                                                         </Box>
-                                                    </Box>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Chip
-                                                        label={pet.species}
-                                                        size="small"
-                                                        sx={{ fontWeight: 'bold', textTransform: 'uppercase', borderRadius: 1 }}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <PersonIcon fontSize="small" color="action" />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Chip
+                                                            label={pet.species}
+                                                            size="small"
+                                                            sx={{ fontWeight: 'bold', textTransform: 'uppercase', borderRadius: 1 }}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <PersonIcon fontSize="small" color="action" />
+                                                            <Typography variant="body2">
+                                                                {owner ? `${owner.name} ${owner.surname}` : 'Desconocido'}
+                                                            </Typography>
+                                                        </Box>
+                                                    </TableCell>
+                                                    <TableCell>
                                                         <Typography variant="body2">
-                                                            {owner ? `${owner.name} ${owner.surname}` : 'Desconocido'}
+                                                            {pet.birthdate ? new Date(pet.birthdate).toLocaleDateString() : 'No registrada'}
                                                         </Typography>
-                                                    </Box>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2">
-                                                        {pet.birthdate ? new Date(pet.birthdate).toLocaleDateString() : 'No registrada'}
-                                                    </Typography>
-                                                </TableCell>
-                                            </TableRow>
+                                                    </TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
+                                                        <Collapse in={expandedPet === pet._id} timeout="auto" unmountOnExit>
+                                                            <Box sx={{ margin: 2 }}>
+                                                                <Typography variant="h6" gutterBottom component="div" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                                                    <MedicalInformationIcon color="primary" /> Historia Clínica de {pet.name}
+                                                                </Typography>
+
+                                                                {historiesLoading ? (
+                                                                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                                                                        <CircularProgress size={30} />
+                                                                    </Box>
+                                                                ) : historiesError ? (
+                                                                    <Alert severity="error">{historiesError}</Alert>
+                                                                ) : (
+                                                                    <MedicalHistoryList
+                                                                        histories={histories.filter(h => {
+                                                                            const hPetId = typeof h.petId === 'string' ? h.petId : h.petId?._id;
+                                                                            return hPetId === pet._id;
+                                                                        })}
+                                                                    />
+                                                                )}
+                                                            </Box>
+                                                        </Collapse>
+                                                    </TableCell>
+                                                </TableRow>
+                                            </Fragment>
                                         );
                                     })}
                                 </TableBody>

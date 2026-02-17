@@ -70,6 +70,7 @@ const VeterinarianList = () => {
                 setSelectedVet(null);
                 loadVeterinarians();
             } catch (err) {
+                setDeleteDialogOpen(false);
                 setError((err as Error).message);
             }
         }

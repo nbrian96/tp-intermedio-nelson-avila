@@ -10,7 +10,10 @@ export const getMedicalHistories = async (req: Request, res: Response, next: Nex
         if (!userId) {
             throw new AuthenticationError('Unauthorized');
         }
-        const medicalHistories = await medicalHistoryService.findAll(userId);
+        const filters: any = {};
+        if (req.query.petId) filters.petId = req.query.petId;
+
+        const medicalHistories = await medicalHistoryService.findAll(userId, filters);
         res.status(200).json({ success: true, data: medicalHistories });
     } catch (error) {
         next(error);

@@ -4,12 +4,10 @@ import cors from 'cors';
 import connectDB from './config/database';
 import morgan from 'morgan';
 import { validateJWTConfig } from './utils/token.util';
+import { seedCareers } from './utils/seeder';
 
-import veterinarianRoutes from './routes/veterinarian.routes';
 import authRoutes from './routes/auth.routes';
-import ownerRoutes from './routes/owner.routes';
-import petRoutes from './routes/pet.routes';
-import medicalHistoryRoutes from './routes/medical-history.routes';
+import enrollmentRoutes from './routes/enrollment.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
@@ -25,20 +23,27 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.BASE_URL || `http://localhost`;
 
-connectDB();
-
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
-app.use('/api/veterinarians', veterinarianRoutes);
-app.use('/api/owners', ownerRoutes);
-app.use('/api/pets', petRoutes);
-app.use('/api/medical-histories', medicalHistoryRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server listening on ${BASE_URL}:${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+    await seedCareers();
+
+    app.listen(PORT, () => {
+      console.log(`Server listening on ${BASE_URL}:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
